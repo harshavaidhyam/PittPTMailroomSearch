@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pitt PT Mailroom</title>
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body class="container mt-5">
+    <h1 class="display-4 text-center mb-4">Pitt PT</h1>
+    <h2>Search mailroom</h2>
+    <div class="form-group">
+        <label for="nameInput">Enter the name of the person:</label>
+        <input type="text" id="nameInput" class="form-control form-control-lg" placeholder="Enter name...">
+    </div>
+    <button class="btn btn-primary btn-lg mt-2" onclick="lookupRoomNumber()">Find Room Number</button>
+    <div id="result" class="mt-3 h4"></div>
+
+    <!-- Add Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/levenshtein-edit-distance/1.0.0/levenshtein.min.js"></script>
+
+    <script>
+        var mailroomData = {
+            "jay irrgang": 215,
+            "reivian berrios barillas": 236,
+            "chris bise": 222,
+            "allyn bove": 502,
+            "jen brach": 504,
+            "wei-neng chuang": 234,
+            "ronna delitto": 235,
+            "pam dunlap": 240,
+            "janet freburger": 504,
+            "shilpa gaikwad": 223,
+            "ale gil": 501,
+            "tara hankin": 219,
+            "regan harrell": 239,
+            "vicki hornyak": 217,
+            "janet jackson-coty": 487,
+            "rick joreitz": 235,
+            "kathy kelly": "4021 FT",
+            "samannaaz khoja": 488,
+            "brooke klatt": 225,
+            "kara kobal": 482,
+            "mike lebec": 236,
+            "mark malacarne": 486,
+            "christine mcdonough": 510,
+            "liz narducci": 482,
+            "kim nixon-cave": 487,
+            "charity patterson": 500,
+            "sara piva": 503,
+            "adam popchak": 230,
+            "mike schneider": 506,
+            "valerie shuman": 237,
+            "pat sparto": 489,
+            "andrew sprague": 229,
+            "mike timko": 228,
+            "jessie van swearingen": 221,
+            "bonnie virag": 238,
+            "dave wert": 220,
+            "sue whitney": 226,
+            "bryan albright": 213,
+            "rebecca arrington": 484,
+            "haleigh biondo": 214,
+            "tara byrne": 517,
+            "grace hariharan": 242,
+            "dominic kramer": 211,
+            "lauren lagana": 216,
+            "debra parrotta": 212,
+            "clarice rutledge": 241,
+            "kathy brown": 470,
+            "erin rozwat": 475,
+            "debra voss": 475,
+            "dave wortman": 475,
+            "tamara artman": 500,
+            "alison bank": 500,
+            "kathy betts": 500,
+            "megan dalzell": 500,
+            "corey flynn": 500,
+            "adam gaupp": 500,
+            "chris mcfarland": 500,
+            "tracey murray": 500,
+            "kristin ressel": 500,
+            "minnie sundaram": 500,
+            "kaitlin sweeney": 500,
+            "jacob fine": 235,
+        };
+
+        function findClosestMatch(input, data) {
+            var closestMatch = "";
+            var minDistance = Infinity;
+
+            for (var key in data) {
+                var distance = levenshteinDistance(input, key);
+                if (distance < minDistance) {
+                    closestMatch = key;
+                    minDistance = distance;
+                }
+            }
+
+            return closestMatch;
+        }
+
+        function levenshteinDistance(s1, s2) {
+            return new Levenshtein(s1, s2).distance;
+        }
+
+        function lookupRoomNumber() {
+            var name = document.getElementById("nameInput").value.trim();
+            if (name !== "") {
+                var lowerCaseName = name.toLowerCase();
+                var roomNumber = mailroomData[lowerCaseName];
+
+                if (!roomNumber) {
+                    // Check if input is a first name
+                    for (var key in mailroomData) {
+                        if (key.toLowerCase().startsWith(lowerCaseName + " ")) {
+                            roomNumber = mailroomData[key];
+                            break;
+                        }
+                    }
+
+                    // Check if input is a last name
+                    if (!roomNumber) {
+                        for (var key in mailroomData) {
+                            if (key.toLowerCase().endsWith(" " + lowerCaseName)) {
+                                roomNumber = mailroomData[key];
+                                break;
+                            }
+                        }
+                    }
+
+                    // Check if input is a single name (first or last)
+                    if (!roomNumber) {
+                        for (var key in mailroomData) {
+                            var names = key.toLowerCase().split(" ");
+                            if (names.includes(lowerCaseName)) {
+                                roomNumber = mailroomData[key];
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (roomNumber !== undefined) {
+                    document.getElementById("result").innerText = name + "'s room number is " + roomNumber + ".";
+                } else {
+                    var closestMatch = findClosestMatch(lowerCaseName, mailroomData);
+                    roomNumber = mailroomData[closestMatch];
+                    document.getElementById("result").innerText = "Name not found. Did you mean " + closestMatch + "? Room number: " + roomNumber + ".";
+                }
+            } else {
+                document.getElementById("result").innerText = "Please enter a valid name.";
+            }
+        }
+
+        document.getElementById("nameInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                lookupRoomNumber();
+            }
+        });
+    </script>
+    <br>
+    <br>
+    <h3> Created by <a href="https://www.linkedin.com/in/shriharsha-a-vaidhyam-b14386182/"> Harsha Vaidhyam</a></h3>
+</body>
+</html>
